@@ -1,0 +1,6 @@
+# requirements.txt (modifié)
+tensorflow==2.12.0
+pandas
+numpy
+scikit-learn
+matplotlib
