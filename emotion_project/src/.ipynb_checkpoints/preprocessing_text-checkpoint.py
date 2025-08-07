@@ -22,7 +22,6 @@ df['Clean_Text'] = df['Clean_Text'].apply(nfx.remove_hashtags)
 
 df['Clean_Text'] = df['Clean_Text'].apply(lambda x: x.lower())
 
-
 # Dictionnaire de normalisation des abréviations courantes
 abbreviation_map = {
     "u": "you",
@@ -76,23 +75,18 @@ def normalize_abbreviations(text):
 # Appliquer la normalisation sur la colonne Clean_Text
 df['Clean_Text'] = df['Clean_Text'].apply(normalize_abbreviations)
 
-print("Taille totale du dataset :", len(df))
-print("Valeurs uniques dans la colonne 'Emotion' :", df['Emotion'].unique())
-print("Nombre de valeurs manquantes :", df['Emotion'].isnull().sum())
-print("Distribution des classes :\n", df['Emotion'].value_counts())
-
 # Supprimer les lignes où 'text' ou 'emotion' est vide (NaN)
-df_cleaned = df.dropna(subset=['Emotion', 'Text'])
+df_cleaned = df.dropna(subset=['content', 'emotion'])
 
 #Supprimer les lignes où le texte est vide (chaîne vide "")
-df_cleaned = df_cleaned[df_cleaned['Text'].str.strip() != '']
+df_cleaned = df_cleaned[df_cleaned['content'].str.strip() != '']
 
 # Supprimer les doublons exacts (même texte et même label)
-df_cleaned = df_cleaned.drop_duplicates(subset=['Emotion','Text'])
+df_cleaned = df_cleaned.drop_duplicates(subset=['content', 'emotion'])
 
 # 1. Division en train (70%) et temp (30%)
 df_train, df_temp = train_test_split(
-    df_cleaned, test_size=0.30, random_state=42, stratify=df_cleaned['Emotion']
+    df, test_size=0.30, random_state=42, stratify=df_cleaned['Emotion']
 )
 
 # 2. Division de temp en validation (15%) et test (15%)
@@ -104,6 +98,8 @@ df_val, df_test = train_test_split(
 df_train.to_csv('data/texts/train.csv', index=False)
 df_val.to_csv('data/texts/val.csv', index=False)
 df_test.to_csv('data/texts/test.csv', index=False)
+
+print("Données enregistrées : train, validation, test")
 
 
 print("Données enregistrées")
