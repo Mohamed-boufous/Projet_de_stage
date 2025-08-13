@@ -4,3 +4,10 @@ pandas
 numpy
 scikit-learn
 matplotlib
+seaborn
+neattext
+nltk
+nlpaug
+
+
+gradio
