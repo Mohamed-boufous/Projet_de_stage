@@ -1,52 +1,58 @@
 # app.py
-
 import gradio as gr
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-# --- CONFIGURATION ---
-MODEL_PATH = 'models/custom_cnn_v1.keras'
+# --- CONFIGURATION MISE À JOUR ---
+# <-- MODIFIÉ : Chemin vers votre nouveau modèle performant
+MODEL_PATH = 'models/emotion_model_final_optimized_65.22.keras' 
 CLASS_NAMES = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
-IMG_HEIGHT = 48
-IMG_WIDTH = 48
+# <-- MODIFIÉ : Taille d'image correspondant au nouveau modèle
+IMG_HEIGHT = 128
+IMG_WIDTH = 128
 
-# --- 1. Load the Trained Keras Model ---
-print("Loading trained model...")
-model = tf.keras.models.load_model(MODEL_PATH)
-print("Model loaded successfully!")
+# --- 1. Charger le Modèle Entraîné ---
+print("Chargement du modèle optimisé...")
+try:
+    model = tf.keras.models.load_model(MODEL_PATH)
+    print("Modèle chargé avec succès !")
+except Exception as e:
+    print(f"Erreur lors du chargement du modèle : {e}")
+    # Quitter si le modèle ne peut pas être chargé
+    exit()
 
-# --- 2. Define the Prediction Function ---
-# This function takes an image as input and returns the model's predictions.
+# --- 2. Définir la Fonction de Prédiction (Corrigée) ---
 def predict_emotion(input_img):
-    # The input from Gradio is a PIL Image, so we process it.
+    # a. Convertir en couleur (RGB) et redimensionner
+    # <-- MODIFIÉ : .convert('RGB') au lieu de 'L' (grayscale)
+    img = input_img.convert('RGB').resize((IMG_WIDTH, IMG_HEIGHT))
     
-    # a. Convert to grayscale and resize
-    img = input_img.convert('L').resize((IMG_WIDTH, IMG_HEIGHT))
+    # b. Convertir en numpy array
+    # <-- MODIFIÉ : On ne divise PAS par 255.0. Le modèle s'attend à des valeurs de 0 à 255.
+    img_array = np.array(img)
     
-    # b. Convert to numpy array and normalize
-    img_array = np.array(img) / 255.0
-    
-    # c. Add batch and channel dimensions to match model's input shape (1, 48, 48, 1)
+    # c. Ajouter la dimension du lot (batch) pour correspondre à l'entrée du modèle (1, 128, 128, 3)
+    # <-- MODIFIÉ : Pas besoin d'ajouter la dimension du canal, elle est déjà présente (RGB)
     img_array = np.expand_dims(img_array, axis=0)
-    img_array = np.expand_dims(img_array, axis=-1)
 
-    # d. Make a prediction
+    # d. Faire une prédiction
     predictions = model.predict(img_array)
     
-    # e. Format the output as a dictionary of {emotion: probability}
+    # e. Formater la sortie en dictionnaire {émotion: probabilité}
     confidences = {CLASS_NAMES[i]: float(predictions[0][i]) for i in range(len(CLASS_NAMES))}
     
     return confidences
 
-# --- 3. Create and Launch the Gradio Interface ---
+# --- 3. Créer et Lancer l'Interface Gradio ---
 iface = gr.Interface(
     fn=predict_emotion,
-    inputs=gr.Image(type="pil", label="Upload an Image"),
-    outputs=gr.Label(num_top_classes=3, label="Predicted Emotions"),
-    title="Emotion Recognition from Facial Expressions",
-    description="Upload a photo of a face, and the model will predict the emotion."
+    inputs=gr.Image(type="pil", label="Uploadez une image de visage"),
+    outputs=gr.Label(num_top_classes=3, label="Émotions Prédites"),
+    title="Reconnaissance des Émotions (Modèle Haute Performance)",
+    description="Uploadez une photo de visage, et le modèle prédira l'émotion. Ce modèle a été entraîné sur plus de 50,000 images de 3 datasets différents.",
+    examples=[["examples/happy_face.jpg"], ["examples/sad_face.jpg"]] # Optionnel : ajoutez des exemples
 )
 
-# Launch the web application
+# Lancer l'application web
 iface.launch()
