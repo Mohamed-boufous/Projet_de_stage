@@ -144,7 +144,7 @@ def augment_minority_synonyms(df, minority_classes, n_aug=2):
             })
     return pd.DataFrame(augmented)
 
-df_cleaned_aug = augment_minority_synonyms(df_cleaned, minority_classes, n_aug=2)
+df_cleaned_aug = augment_minority_synonyms(df_cleaned, minority_classes, n_aug=3)
 print(f"Taille avant augmentation : {len(df_cleaned)}")
 print(f"Taille après augmentation : {len(df_cleaned_aug)}")
 
