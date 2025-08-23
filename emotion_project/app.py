@@ -1,39 +1,39 @@
-# app.py
+# app.py - Version finale compatible avec le modèle 69.57%
 import gradio as gr
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 
 # --- CONFIGURATION MISE À JOUR ---
-# <-- MODIFIÉ : Chemin vers votre nouveau modèle performant
-MODEL_PATH = 'models/emotion_model_final_optimized_65.22.keras' 
+MODEL_PATH = 'models/emotion_model_final_acc_69.57.keras' 
 CLASS_NAMES = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
-# <-- MODIFIÉ : Taille d'image correspondant au nouveau modèle
-IMG_HEIGHT = 128
-IMG_WIDTH = 128
+# <-- MODIFIÉ : Taille d'image correspondant au nouveau modèle performant
+IMG_HEIGHT = 192
+IMG_WIDTH = 192
 
 # --- 1. Charger le Modèle Entraîné ---
-print("Chargement du modèle optimisé...")
+print("Chargement du modèle haute performance...")
 try:
-    model = tf.keras.models.load_model(MODEL_PATH)
+    # L'option compile=False peut accélérer le chargement pour l'inférence seule
+    model = tf.keras.models.load_model(MODEL_PATH, compile=False) 
     print("Modèle chargé avec succès !")
 except Exception as e:
     print(f"Erreur lors du chargement du modèle : {e}")
-    # Quitter si le modèle ne peut pas être chargé
     exit()
 
-# --- 2. Définir la Fonction de Prédiction (Corrigée) ---
-def predict_emotion(input_img):
+# --- 2. Définir la Fonction de Prédiction ---
+def predict_emotion(input_img: Image.Image):
+    """
+    Prétraite une image et retourne les probabilités d'émotion.
+    """
     # a. Convertir en couleur (RGB) et redimensionner
-    # <-- MODIFIÉ : .convert('RGB') au lieu de 'L' (grayscale)
     img = input_img.convert('RGB').resize((IMG_WIDTH, IMG_HEIGHT))
     
-    # b. Convertir en numpy array
-    # <-- MODIFIÉ : On ne divise PAS par 255.0. Le modèle s'attend à des valeurs de 0 à 255.
+    # b. Convertir en numpy array (valeurs de 0 à 255, comme pendant l'entraînement)
     img_array = np.array(img)
     
-    # c. Ajouter la dimension du lot (batch) pour correspondre à l'entrée du modèle (1, 128, 128, 3)
-    # <-- MODIFIÉ : Pas besoin d'ajouter la dimension du canal, elle est déjà présente (RGB)
+    # c. Ajouter la dimension du lot (batch) pour correspondre à l'entrée du modèle
+    # Shape devient : (1, 192, 192, 3)
     img_array = np.expand_dims(img_array, axis=0)
 
     # d. Faire une prédiction
@@ -49,10 +49,11 @@ iface = gr.Interface(
     fn=predict_emotion,
     inputs=gr.Image(type="pil", label="Uploadez une image de visage"),
     outputs=gr.Label(num_top_classes=3, label="Émotions Prédites"),
-    title="Reconnaissance des Émotions (Modèle Haute Performance)",
-    description="Uploadez une photo de visage, et le modèle prédira l'émotion. Ce modèle a été entraîné sur plus de 50,000 images de 3 datasets différents.",
-    examples=[["examples/happy_face.jpg"], ["examples/sad_face.jpg"]] # Optionnel : ajoutez des exemples
+    title="Analyseur d'Émotions par IA 🤖 (Modèle @69.6%)",
+    description="Uploadez une photo de visage et le modèle prédir a l'émotion. Entraîné sur plus de 50,000 images avec EfficientNetV2B2.",
+    examples=[["examples/happy_face.jpg"], ["examples/sad_face.jpg"], ["examples/surprise_face.jpg"]],
+    allow_flagging="never"
 )
 
 # Lancer l'application web
-iface.launch()
+iface.launch(share=True) # share=True pour obtenir un lien public si nécessaire
