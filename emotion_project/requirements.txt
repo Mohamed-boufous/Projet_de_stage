@@ -1,5 +1,5 @@
 # requirements.txt (modifié)
-tensorflow==2.12.0
+tensorflow==2.17.0
 pandas
 numpy
 scikit-learn
@@ -8,6 +8,11 @@ seaborn
 neattext
 nltk
 nlpaug
-
+joblib
 
 gradio
+fastapi
+uvicorn[standard] # Le serveur pour faire tourner FastAPI
+python-multipart  # Pour gérer l'upload de fichiers
+Pillow # Pour la manipulation d'images
+sentence-transformers
